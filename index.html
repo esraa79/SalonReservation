@@ -104,11 +104,12 @@
   <!-- Gender Selection Cards -->
   <div class="gender-select">
     <div class="gender-card" data-gender="female" id="femaleCard">
-      <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" alt="Female">
+           <img src="https://cdn-icons-png.flaticon.com/512/4140/4140051.png" alt="Female">
+
       <p>Female</p>
     </div>
     <div class="gender-card" data-gender="male" id="maleCard">
-      <img src="https://cdn-icons-png.flaticon.com/512/4140/4140051.png" alt="Male">
+       <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" alt="Male">
       <p>Male</p>
     </div>
   </div>
@@ -130,10 +131,32 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
     const salons = [
-      {id: 1, name: "Elegant Beauty Salon", img:"https://images.unsplash.com/photo-1588776814546-ec7c14a24f8b", gender: "female", slots: ["10:00", "11:00", "12:00"], reserved: []},
-      {id: 2, name: "Gentlemen's Cut Lounge", img:"https://images.unsplash.com/photo-1599382101340-86b35cb63bdb", gender: "male", slots: ["09:00", "10:30", "14:00"], reserved: []},
-      {id: 3, name: "Universal Glam Studio", img:"https://images.unsplash.com/photo-1603297631954-d1c3f5aa9f9a", gender: "any", slots: ["10:00", "13:00", "15:00"], reserved: []}
-    ];
+  {
+    id: 1,
+    name: "Elegant Beauty Salon",
+    img: "https://images.unsplash.com/photo-1588776814546-ec7c14a24f8b?auto=format&fit=crop&w=800&q=80",
+    gender: "female",
+    slots: ["10:00", "11:00", "12:00"],
+    reserved: []
+  },
+  {
+    id: 2,
+    name: "Gentlemen's Cut Lounge",
+    img: "https://images.unsplash.com/photo-1599382101340-86b35cb63bdb?auto=format&fit=crop&w=800&q=80",
+    gender: "male",
+    slots: ["09:00", "10:30", "14:00"],
+    reserved: []
+  },
+  {
+    id: 3,
+    name: "Universal Glam Studio",
+    img: "https://images.unsplash.com/photo-1603297631954-d1c3f5aa9f9a?auto=format&fit=crop&w=800&q=80",
+    gender: "any",
+    slots: ["10:00", "13:00", "15:00"],
+    reserved: []
+  }
+];
+
 
     let map, redIcon, blueIcon;
     let userLat, userLng;
