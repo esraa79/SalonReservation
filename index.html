@@ -104,12 +104,11 @@
   <!-- Gender Selection Cards -->
   <div class="gender-select">
     <div class="gender-card" data-gender="female" id="femaleCard">
-           <img src="https://cdn-icons-png.flaticon.com/512/4140/4140051.png" alt="Female">
-
+      <img src="https://cdn-icons-png.flaticon.com/512/4140/4140051.png" alt="Female">
       <p>Female</p>
     </div>
     <div class="gender-card" data-gender="male" id="maleCard">
-       <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" alt="Male">
+      <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" alt="Male">
       <p>Male</p>
     </div>
   </div>
@@ -131,35 +130,14 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
     const salons = [
-  {
-    id: 1,
-    name: "Elegant Beauty Salon",
-    img: "https://images.unsplash.com/photo-1588776814546-ec7c14a24f8b?auto=format&fit=crop&w=800&q=80",
-    gender: "female",
-    slots: ["10:00", "11:00", "12:00"],
-    reserved: []
-  },
-  {
-    id: 2,
-    name: "Gentlemen's Cut Lounge",
-    img: "https://images.unsplash.com/photo-1599382101340-86b35cb63bdb?auto=format&fit=crop&w=800&q=80",
-    gender: "male",
-    slots: ["09:00", "10:30", "14:00"],
-    reserved: []
-  },
-  {
-    id: 3,
-    name: "Universal Glam Studio",
-    img: "https://images.unsplash.com/photo-1603297631954-d1c3f5aa9f9a?auto=format&fit=crop&w=800&q=80",
-    gender: "any",
-    slots: ["10:00", "13:00", "15:00"],
-    reserved: []
-  }
-];
-
+      {id: 1, name: "Elegant Beauty Salon", img: "img/1.avif", gender: "male", slots: ["10:00","11:00","12:00"], reserved: []},
+      {id: 2, name: "Gentlemen's Cut Lounge", img: "img/2.avif", gender: "female", slots: ["09:00","10:30","14:00"], reserved: []},
+      {id: 3, name: "Universal Glam Studio", img: "img/3.avif", gender: "any", slots: ["10:00","13:00","15:00"], reserved: []}
+    ];
 
     let map, redIcon, blueIcon;
     let userLat, userLng;
+    let salonMarkers = [];
     const toast = new bootstrap.Toast(document.getElementById('toast'));
 
     redIcon = new L.Icon({
@@ -173,6 +151,11 @@
       iconAnchor: [16, 32]
     });
 
+    function clearMarkers() {
+      salonMarkers.forEach(marker => map.removeLayer(marker));
+      salonMarkers = [];
+    }
+
     function initMap(selectedGender) {
       if (!map) {
         map = L.map('map').setView([24.7136, 46.6753], 13);
@@ -184,21 +167,33 @@
       document.getElementById('map').style.display = 'block';
       setTimeout(() => map.invalidateSize(), 200);
 
+      clearMarkers(); // clear old markers
+
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
           userLat = pos.coords.latitude;
           userLng = pos.coords.longitude;
           map.setView([userLat, userLng], 14);
+
+          // User marker
           L.marker([userLat, userLng], {icon: redIcon}).addTo(map).bindPopup("You are here").openPopup();
+
+          // Add salon markers
           salons.forEach(salon => {
             const offsetLat = (Math.random() - 0.5)/100;
             const offsetLng = (Math.random() - 0.5)/100;
             salon.lat = userLat + offsetLat;
             salon.lng = userLng + offsetLng;
-            L.marker([salon.lat, salon.lng], {icon: blueIcon}).addTo(map).bindPopup(salon.name);
+
+            const marker = L.marker([salon.lat, salon.lng], {icon: blueIcon}).addTo(map).bindPopup(salon.name);
+            salonMarkers.push(marker);
           });
+
           displaySalons(selectedGender);
-        });
+        }, err => {
+          console.error(err);
+          displaySalons(selectedGender);
+        }, {enableHighAccuracy: true});
       } else {
         displaySalons(selectedGender);
       }
@@ -206,7 +201,8 @@
 
     function displaySalons(selectedGender) {
       const list = document.getElementById('salonsList');
-      list.innerHTML = '';
+      list.innerHTML = ''; // clear previous list
+
       salons.forEach(salon => {
         if (salon.gender === selectedGender || salon.gender === "any") {
           const card = document.createElement('div');
@@ -227,15 +223,26 @@
     }
 
     function bookSlot(salonId, slot) {
-      const salon = salons.find(s => s.id === salonId);
-      if (!salon.reserved.includes(slot)) {
-        salon.reserved.push(slot);
-        showToast(`✅ Reserved ${slot} at ${salon.name}`);
-        displaySalons(document.querySelector('.gender-card.active')?.dataset.gender);
-      } else {
-        showToast("⚠️ Slot already reserved");
-      }
-    }
+  const salon = salons.find(s => s.id === salonId);
+
+  // If slot already reserved
+  if (salon.reserved.includes(slot)) {
+    showToast("⚠️ Slot already reserved");
+    return;
+  }
+
+  // Reserve the slot
+  salon.reserved.push(slot);
+  showToast(`✅ Reserved ${slot} at ${salon.name}`);
+
+  // Immediately disable the clicked button
+  const button = document.querySelector(`button[onclick="bookSlot(${salon.id}, '${slot}')"]`);
+  if (button) {
+    button.disabled = true;
+    button.classList.remove('btn-outline-primary');
+    button.classList.add('btn-secondary');
+  }
+}
 
     function showToast(message) {
       document.getElementById('toastMsg').innerText = message;
